@@ -1,41 +1,48 @@
-const express = require("express");
-const http = require("http");
-const { Server } = require("socket.io");
-const cors = require("cors");
-
-const app = express();
-app.use(cors({
-  origin: "*",
-  methods: ["GET", "POST"],
-  credentials: true
-}));
-
-app.get("/", (req, res) => {
-  res.send("Socket.IO chat server is running.");
+const socket = io(window.BACKEND_URL, {
+  transports: ["websocket", "polling"],
+  withCredentials: true
 });
 
-const server = http.createServer(app);
-const io = new Server(server, {
-  cors: {
-    origin: "*",
-    methods: ["GET", "POST"],
-    credentials: true
-  }
+const statusEl = document.getElementById("status");
+const messagesEl = document.getElementById("messages");
+const formEl = document.getElementById("form");
+const inputEl = document.getElementById("input");
+const usernameEl = document.getElementById("username");
+
+socket.on("connect", () => {
+  statusEl.textContent = "Connected";
+});
+socket.on("connect_error", (err) => {
+  statusEl.textContent = "Connection error: " + err.message;
+});
+socket.on("disconnect", () => {
+  statusEl.textContent = "Disconnected";
 });
 
-io.on("connection", (socket) => {
-  console.log("Client connected:", socket.id);
-
-  socket.on("chat:message", (payload) => {
-    io.emit("chat:message", payload);
-  });
-
-  socket.on("disconnect", () => {
-    console.log("Client disconnected:", socket.id);
-  });
+socket.on("chat:message", (payload) => {
+  const li = document.createElement("li");
+  const meta = document.createElement("div");
+  meta.className = "meta";
+  meta.textContent = `${payload.username} • ${new Date(payload.timestamp).toLocaleTimeString()}`;
+  const text = document.createElement("div");
+  text.textContent = payload.message;
+  li.appendChild(meta);
+  li.appendChild(text);
+  messagesEl.appendChild(li);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
 });
 
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-  console.log(`Server listening on port ${PORT}`);
+formEl.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const username = usernameEl.value.trim();
+  const message = inputEl.value.trim();
+  if (!username || !message) return;
+
+  const payload = {
+    username,
+    message,
+    timestamp: Date.now()
+  };
+  socket.emit("chat:message", payload);
+  inputEl.value = "";
 });

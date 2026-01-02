@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Simple Chat</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h2>Simple Chat</h2>
+    <div id="status">Connecting…</div>
+
+    <div id="chat">
+      <ul id="messages"></ul>
+    </div>
+
+    <form id="form">
+      <input id="username" type="text" placeholder="Your name" required />
+      <input id="input" type="text" placeholder="Type a message…" autocomplete="off" required />
+      <button type="submit">Send</button>
+    </form>
+  </div>
+
+  <!-- Replace BACKEND_URL with your Render URL -->
+  <script>
+    window.BACKEND_URL = "https://render.com/docs/web-services#port-binding";
+  </script>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js" crossorigin="anonymous"></script>
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,33 +1,80 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Simple Chat</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 </head>
 <body>
   <div class="container">
     <h2>Simple Chat</h2>
-    <div id="status">Connecting…</div>
+    <div id="status">Connected as: <span id="userDisplay"></span></div>
 
+    <!-- Online users list -->
+    <div id="usersBox">
+      <h4>Online Users</h4>
+      <ul id="users"></ul>
+    </div>
+
+    <!-- Chat area -->
     <div id="chat">
       <ul id="messages"></ul>
     </div>
 
+    <!-- Message form -->
     <form id="form">
-      <input id="username" type="text" placeholder="Your name" required />
-      <input id="input" type="text" placeholder="Type a message…" autocomplete="off" required />
-      <button type="submit">Send</button>
+      <input type="text" id="input" autocomplete="off" placeholder="Type a message...">
+      <button>Send</button>
     </form>
   </div>
 
-  <!-- Replace BACKEND_URL with your Render URL -->
   <script>
-    window.BACKEND_URL = "https://chat-backend-q1lk.onrender.com";
+    // Get username from localStorage
+    const username = localStorage.getItem("chatUsername");
+    if (!username) {
+      window.location.href = "login.html"; // force login if no name
+    }
+
+    // Show current user
+    document.getElementById("userDisplay").textContent = username;
+
+    // Connect to backend
+    const socket = io("https://chat-backend-q1lk.onrender.com");
+
+    // Join with username
+    socket.emit("join", username);
+
+    // Handle messages
+    const form = document.getElementById("form");
+    const input = document.getElementById("input");
+    const messages = document.getElementById("messages");
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      if (input.value) {
+        socket.emit("chat message", { user: username, text: input.value });
+        input.value = "";
+      }
+    });
+
+    socket.on("chat message", (msg) => {
+      const item = document.createElement("li");
+      item.innerHTML = `<div class="meta">${msg.user}</div>${msg.text}`;
+      messages.appendChild(item);
+      messages.scrollTop = messages.scrollHeight;
+    });
+
+    // Update online users list
+    socket.on("updateUsers", (users) => {
+      const list = document.getElementById("users");
+      list.innerHTML = "";
+      users.forEach(u => {
+        const li = document.createElement("li");
+        li.textContent = u;
+        list.appendChild(li);
+      });
+    });
   </script>
-  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js" crossorigin="anonymous"></script>
-  <script src="script.js"></script>
 </body>
 </html>
+

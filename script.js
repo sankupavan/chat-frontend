@@ -1,7 +1,6 @@
 // Connect to backend Socket.IO server
 const socket = io(window.BACKEND_URL, {
   transports: ["websocket", "polling"],
-  withCredentials: true
 });
 
 const statusEl = document.getElementById("status");

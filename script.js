@@ -1,3 +1,4 @@
+// Connect to backend Socket.IO server
 const socket = io(window.BACKEND_URL, {
   transports: ["websocket", "polling"],
   withCredentials: true
@@ -9,6 +10,7 @@ const formEl = document.getElementById("form");
 const inputEl = document.getElementById("input");
 const usernameEl = document.getElementById("username");
 
+// Connection status
 socket.on("connect", () => {
   statusEl.textContent = "Connected";
 });
@@ -19,6 +21,7 @@ socket.on("disconnect", () => {
   statusEl.textContent = "Disconnected";
 });
 
+// Receive messages
 socket.on("chat:message", (payload) => {
   const li = document.createElement("li");
   const meta = document.createElement("div");
@@ -32,6 +35,7 @@ socket.on("chat:message", (payload) => {
   messagesEl.scrollTop = messagesEl.scrollHeight;
 });
 
+// Send messages
 formEl.addEventListener("submit", (e) => {
   e.preventDefault();
   const username = usernameEl.value.trim();

@@ -4,9 +4,7 @@ body {
   margin: 0;
   padding: 20px;
   min-height: 100vh;
-  position: relative;
   background: url("https://preview.redd.it/mocnldr88yh61.jpg?width=1080&crop=smart&auto=webp&s=67a48055438d83c15d1b808fee38c37b537930ca") no-repeat center center fixed;
-  background-size: cover;
 }
 .container {
   max-width: 600px;
